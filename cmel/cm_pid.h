@@ -44,6 +44,27 @@ cm_pid_pid_t* cm_pid_pid_init(float kp, float ki, float kd);
 void cm_pid_pid_set_target(cm_pid_pid_t* pid, float target);
 
 /**
+ * @brief 单独设置PID控制器的比例系数
+ * @param pid PID控制器指针
+ * @param kp 新的比例系数
+ */
+void cm_pid_pid_set_kp(cm_pid_pid_t* pid, float kp);
+
+/**
+ * @brief 单独设置PID控制器的积分系数
+ * @param pid PID控制器指针
+ * @param ki 新的积分系数
+ */
+void cm_pid_pid_set_ki(cm_pid_pid_t* pid, float ki);
+
+/**
+ * @brief 单独设置PID控制器的微分系数
+ * @param pid PID控制器指针
+ * @param kd 新的微分系数
+ */
+void cm_pid_pid_set_kd(cm_pid_pid_t* pid, float kd);
+
+/**
  * @brief 设置PID控制器输出限幅
  * @param pid PID控制器指针
  * @param min 输出最小值
@@ -102,6 +123,20 @@ cm_pid_pd_t* cm_pid_pd_init(float kp, float kd);
  * @param target 目标值
  */
 void cm_pid_pd_set_target(cm_pid_pd_t* pd, float target);
+
+/**
+ * @brief 单独设置PD控制器的比例系数
+ * @param pd PD控制器指针
+ * @param kp 新的比例系数
+ */
+void cm_pid_pd_set_kp(cm_pid_pd_t* pd, float kp);
+
+/**
+ * @brief 单独设置PD控制器的微分系数
+ * @param pd PD控制器指针
+ * @param kd 新的微分系数
+ */
+void cm_pid_pd_set_kd(cm_pid_pd_t* pd, float kd);
 
 /**
  * @brief 设置PD控制器输出限幅

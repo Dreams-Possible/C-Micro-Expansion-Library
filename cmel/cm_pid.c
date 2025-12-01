@@ -15,6 +15,12 @@
 cm_pid_pid_t* cm_pid_pid_init(float kp, float ki, float kd);
 //PID设置目标
 void cm_pid_pid_set_target(cm_pid_pid_t* pid, float target);
+//PID设置KP
+void cm_pid_pid_set_kp(cm_pid_pid_t* pid, float kp);
+//PID设置KI
+void cm_pid_pid_set_ki(cm_pid_pid_t* pid, float ki);
+//PID设置KD
+void cm_pid_pid_set_kd(cm_pid_pid_t* pid, float kd);
 //设置输出限幅
 void cm_pid_pid_set_limit(cm_pid_pid_t* pid, float min, float max);
 //PID反初始化
@@ -47,6 +53,33 @@ cm_pid_pid_t* cm_pid_pid_init(float kp, float ki, float kd)
 void cm_pid_pid_set_target(cm_pid_pid_t* pid, float target)
 {
     pid->target = target;
+}
+
+//单独设置PID控制器的比例系数
+void cm_pid_pid_set_kp(cm_pid_pid_t* pid, float kp)
+{
+    if(pid)
+    {
+        pid->kp = kp;
+    }
+}
+
+//单独设置PID控制器的积分系数
+void cm_pid_pid_set_ki(cm_pid_pid_t* pid, float ki)
+{
+    if(pid)
+    {
+        pid->ki = ki;
+    }
+}
+
+//单独设置PID控制器的微分系数
+void cm_pid_pid_set_kd(cm_pid_pid_t* pid, float kd)
+{
+    if(pid)
+    {
+        pid->kd = kd;
+    }
 }
 
 //PID设置输出限幅
@@ -128,6 +161,10 @@ float cm_pid_pid_comput(cm_pid_pid_t* pid, float input, float time)
 cm_pid_pd_t* cm_pid_pd_init(float kp, float kd);
 //PD设置目标
 void cm_pid_pd_set_target(cm_pid_pd_t* pd, float target);
+//PD设置KP
+void cm_pid_pd_set_kp(cm_pid_pd_t* pd, float kp);
+//PD设置KD
+void cm_pid_pd_set_kd(cm_pid_pd_t* pd, float kd);
 //设置输出限幅
 void cm_pid_pd_set_limit(cm_pid_pd_t* pd, float min, float max);
 //PD反初始化
@@ -158,6 +195,24 @@ cm_pid_pd_t* cm_pid_pd_init(float kp, float kd)
 void cm_pid_pd_set_target(cm_pid_pd_t* pd, float target)
 {
     pd->target = target;
+}
+
+//单独设置PD控制器的比例系数
+void cm_pid_pd_set_kp(cm_pid_pd_t* pd, float kp)
+{
+    if(pd)
+    {
+        pd->kp = kp;
+    }
+}
+
+//单独设置PD控制器的微分系数
+void cm_pid_pd_set_kd(cm_pid_pd_t* pd, float kd)
+{
+    if(pd)
+    {
+        pd->kd = kd;
+    }
 }
 
 //PD设置输出限幅
