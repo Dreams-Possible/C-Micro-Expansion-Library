@@ -192,7 +192,7 @@ uint32_t cm_cli_parse(const char* input, char** args_str, char*** args_ptr)
         }
     }
     //记录参数
-    char** args = (char**)malloc(args_num * sizeof(char*));
+    char** args = (char**)malloc((args_num+1) * sizeof(char*));
     if(!args)
     {
         cli_log("mem err");
@@ -226,6 +226,7 @@ uint32_t cm_cli_parse(const char* input, char** args_str, char*** args_ptr)
             ++temp;
         }
     }
+    args[args_num] = NULL;
     *args_ptr = args;
     return args_num;
 }
