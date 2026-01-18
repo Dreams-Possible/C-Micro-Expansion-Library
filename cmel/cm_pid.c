@@ -485,7 +485,7 @@ typedef struct cm_pid_ipi_t
 {
     float kp;              // 比例系数
     float ki;              // 积分系数
-    float kd;              // 微分系数
+    // float kd;              // 微分系数
     float target;          // 目标值
     float output_min;      // 输出最小值
     float output_max;      // 输出最大值
@@ -502,8 +502,8 @@ void cm_pid_ipi_set_target(cm_pid_ipi_t* pid, float target);
 void cm_pid_ipi_set_kp(cm_pid_ipi_t* pid, float kp);
 //增量式PI设置KI
 void cm_pid_ipi_set_ki(cm_pid_ipi_t* pid, float ki);
-//增量式PI设置KD
-void cm_pid_ipi_set_kd(cm_pid_ipi_t* pid, float kd);
+// //增量式PI设置KD
+// void cm_pid_ipi_set_kd(cm_pid_ipi_t* pid, float kd);
 // //增量式PI设置上次输出
 // void cm_pid_ipi_set_output(cm_pid_ipi_t* pid, float output);
 //设置输出限幅
@@ -524,7 +524,7 @@ cm_pid_ipi_t* cm_pid_ipi_init()
     }
     pid->kp = 0;
     pid->ki = 0;
-    pid->kd = 0;
+    // pid->kd = 0;
     pid->target = 0;
     pid->output_min = -FLT_MAX;
     pid->output_max = FLT_MAX;
@@ -558,14 +558,14 @@ void cm_pid_ipi_set_ki(cm_pid_ipi_t* pid, float ki)
     }
 }
 
-//单独设置增量式PI控制器的微分系数
-void cm_pid_ipi_set_kd(cm_pid_ipi_t* pid, float kd)
-{
-    if(pid)
-    {
-        pid->kd = kd;
-    }
-}
+// //单独设置增量式PI控制器的微分系数
+// void cm_pid_ipi_set_kd(cm_pid_ipi_t* pid, float kd)
+// {
+//     if(pid)
+//     {
+//         pid->kd = kd;
+//     }
+// }
 
 // //增量式PI设置上次输出
 // void cm_pid_ipi_set_output(cm_pid_ipi_t* pid, float output)

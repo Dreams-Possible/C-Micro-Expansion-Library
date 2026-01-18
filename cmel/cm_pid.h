@@ -109,8 +109,8 @@ void cm_pid_ipi_set_kp(cm_pid_ipi_t* pid, float kp);
 /* 增量式PI设置KI */
 void cm_pid_ipi_set_ki(cm_pid_ipi_t* pid, float ki);
 
-/* 增量式PI设置KD */
-void cm_pid_ipi_set_kd(cm_pid_ipi_t* pid, float kd);
+// /* 增量式PI设置KD */
+// void cm_pid_ipi_set_kd(cm_pid_ipi_t* pid, float kd);
 
 // /* 增量式PI设置上次输出 */
 // void cm_pid_ipi_set_output(cm_pid_ipi_t* pid, float output);
