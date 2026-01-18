@@ -1,163 +1,128 @@
 #pragma once
 
-#include<stdint.h>
+#include <stdint.h>
 
-/**
- * @brief PID控制器结构体
- * @param kp 比例系数
- * @param ki 积分系数
- * @param kd 微分系数
- * @param target 目标值
- * @param output_min 输出最小值限制
- * @param output_max 输出最大值限制
- * @param sum_integral 积分项累计值
- * @param last_error 上一次误差值
- * @param last_time 上一次计算时间
- */
-typedef struct cm_pid_pid_t
-{
-    float kp;
-    float ki;
-    float kd;
-    float target;
-    float output_min;
-    float output_max;
-    float sum_integral;
-    float last_error;
-    float last_time;
-} cm_pid_pid_t;
+/* 类型声明 */
+typedef struct cm_pid_ppid_t cm_pid_ppid_t;  /* 位置式PID控制器 */
+typedef struct cm_pid_ppd_t cm_pid_ppd_t;    /* 位置式PD控制器 */
+typedef struct cm_pid_ipid_t cm_pid_ipid_t;  /* 增量式PID控制器 */
+typedef struct cm_pid_ipi_t cm_pid_ipi_t;    /* 增量式PI控制器 */
 
-/**
- * @brief 初始化PID控制器
- * @param kp 比例系数
- * @param ki 积分系数
- * @param kd 微分系数
- * @return 返回新创建的PID控制器指针，失败返回NULL
- */
-cm_pid_pid_t* cm_pid_pid_init(float kp, float ki, float kd);
+/* 以下为位置式PID控制函数声明 */
 
-/**
- * @brief 设置PID控制器目标值
- * @param pid PID控制器指针
- * @param target 目标值
- */
-void cm_pid_pid_set_target(cm_pid_pid_t* pid, float target);
+/* 位置式PID初始化 */
+cm_pid_ppid_t* cm_pid_ppid_init();
 
-/**
- * @brief 单独设置PID控制器的比例系数
- * @param pid PID控制器指针
- * @param kp 新的比例系数
- */
-void cm_pid_pid_set_kp(cm_pid_pid_t* pid, float kp);
+/* 位置式PID设置目标 */
+void cm_pid_ppid_set_target(cm_pid_ppid_t* pid, float target);
 
-/**
- * @brief 单独设置PID控制器的积分系数
- * @param pid PID控制器指针
- * @param ki 新的积分系数
- */
-void cm_pid_pid_set_ki(cm_pid_pid_t* pid, float ki);
+/* 位置式PID设置KP */
+void cm_pid_ppid_set_kp(cm_pid_ppid_t* pid, float kp);
 
-/**
- * @brief 单独设置PID控制器的微分系数
- * @param pid PID控制器指针
- * @param kd 新的微分系数
- */
-void cm_pid_pid_set_kd(cm_pid_pid_t* pid, float kd);
+/* 位置式PID设置KI */
+void cm_pid_ppid_set_ki(cm_pid_ppid_t* pid, float ki);
 
-/**
- * @brief 设置PID控制器输出限幅
- * @param pid PID控制器指针
- * @param min 输出最小值
- * @param max 输出最大值
- */
-void cm_pid_pid_set_limit(cm_pid_pid_t* pid, float min, float max);
+/* 位置式PID设置KD */
+void cm_pid_ppid_set_kd(cm_pid_ppid_t* pid, float kd);
 
-/**
- * @brief 反初始化PID控制器
- * @param pid 指向PID控制器指针的指针
- * @note 该函数会释放PID控制器内存
- */
-void cm_pid_pid_deinit(cm_pid_pid_t**pid);
+/* 设置输出限幅 */
+void cm_pid_ppid_set_limit(cm_pid_ppid_t* pid, float min, float max);
 
-/**
- * @brief PID控制器计算
- * @param pid PID控制器指针
- * @param input 当前输入值
- * @param time 当前时间
- * @return 返回PID计算输出值
- */
-float cm_pid_pid_comput(cm_pid_pid_t* pid, float input, float time);
+/* 位置式PID重置 */
+void cm_pid_ppid_reset(cm_pid_ppid_t* pid);
 
-/**
- * @brief PD控制器结构体
- * @param kp 比例系数
- * @param kd 微分系数
- * @param target 目标值
- * @param output_min 输出最小值限制
- * @param output_max 输出最大值限制
- * @param last_error 上一次误差值
- * @param last_time 上一次计算时间
- */
-typedef struct cm_pid_pd_t
-{
-    float kp;
-    float kd;
-    float target;
-    float output_min;
-    float output_max;
-    float last_error;
-    float last_time;
-} cm_pid_pd_t;
+/* 位置式PID反初始化 */
+void cm_pid_ppid_deinit(cm_pid_ppid_t** pid);
 
-/**
- * @brief 初始化PD控制器
- * @param kp 比例系数
- * @param kd 微分系数
- * @return 返回新创建的PD控制器指针，失败返回NULL
- */
-cm_pid_pd_t* cm_pid_pd_init(float kp, float kd);
+/* 位置式PID计算 */
+float cm_pid_ppid_comput(cm_pid_ppid_t* pid, float input, float time);
 
-/**
- * @brief 设置PD控制器目标值
- * @param pd PD控制器指针
- * @param target 目标值
- */
-void cm_pid_pd_set_target(cm_pid_pd_t* pd, float target);
+/* 以下为位置式PD控制函数声明 */
 
-/**
- * @brief 单独设置PD控制器的比例系数
- * @param pd PD控制器指针
- * @param kp 新的比例系数
- */
-void cm_pid_pd_set_kp(cm_pid_pd_t* pd, float kp);
+/* 位置式PD初始化 */
+cm_pid_ppd_t* cm_pid_ppd_init();
 
-/**
- * @brief 单独设置PD控制器的微分系数
- * @param pd PD控制器指针
- * @param kd 新的微分系数
- */
-void cm_pid_pd_set_kd(cm_pid_pd_t* pd, float kd);
+/* 位置式PD设置目标 */
+void cm_pid_ppd_set_target(cm_pid_ppd_t* pd, float target);
 
-/**
- * @brief 设置PD控制器输出限幅
- * @param pd PD控制器指针
- * @param min 输出最小值
- * @param max 输出最大值
- */
-void cm_pid_pd_set_limit(cm_pid_pd_t* pd, float min, float max);
+/* 位置式PD设置KP */
+void cm_pid_ppd_set_kp(cm_pid_ppd_t* pd, float kp);
 
-/**
- * @brief 反初始化PD控制器
- * @param pd 指向PD控制器指针的指针
- * @note 该函数会释放PD控制器内存
- */
-void cm_pid_pd_deinit(cm_pid_pd_t**pd);
+/* 位置式PD设置KD */
+void cm_pid_ppd_set_kd(cm_pid_ppd_t* pd, float kd);
 
-/**
- * @brief PD控制器计算
- * @param pd PD控制器指针
- * @param input 当前输入值
- * @param time 当前时间
- * @return 返回PD计算输出值
- */
-float cm_pid_pd_comput(cm_pid_pd_t* pd, float input, float time);
+/* 设置输出限幅 */
+void cm_pid_ppd_set_limit(cm_pid_ppd_t* pd, float min, float max);
+
+/* 位置式PD重置 */
+void cm_pid_ppd_reset(cm_pid_ppd_t* pd);
+
+/* 位置式PD反初始化 */
+void cm_pid_ppd_deinit(cm_pid_ppd_t** pd);
+
+/* 位置式PD计算 */
+float cm_pid_ppd_comput(cm_pid_ppd_t* pd, float input, float time);
+
+/* 以下为增量式PID控制函数声明 */
+
+/* 增量式PID初始化 */
+cm_pid_ipid_t* cm_pid_ipid_init();
+
+/* 增量式PID设置目标 */
+void cm_pid_ipid_set_target(cm_pid_ipid_t* pid, float target);
+
+/* 增量式PID设置KP */
+void cm_pid_ipid_set_kp(cm_pid_ipid_t* pid, float kp);
+
+/* 增量式PID设置KI */
+void cm_pid_ipid_set_ki(cm_pid_ipid_t* pid, float ki);
+
+/* 增量式PID设置KD */
+void cm_pid_ipid_set_kd(cm_pid_ipid_t* pid, float kd);
+
+/* 增量式PID设置上次输出 */
+void cm_pid_ipid_set_output(cm_pid_ipid_t* pid, float output);
+
+/* 设置输出限幅 */
+void cm_pid_ipid_set_limit(cm_pid_ipid_t* pid, float min, float max);
+
+/* 增量式PID重置 */
+void cm_pid_ipid_reset(cm_pid_ipid_t* pid);
+
+/* 增量式PID反初始化 */
+void cm_pid_ipid_deinit(cm_pid_ipid_t** pid);
+
+/* 增量式PID计算 */
+float cm_pid_ipid_comput(cm_pid_ipid_t* pid, float input, float time);
+
+/* 以下为增量式PI控制函数声明 */
+
+/* 增量式PI初始化 */
+cm_pid_ipi_t* cm_pid_ipi_init();
+
+/* 增量式PI设置目标 */
+void cm_pid_ipi_set_target(cm_pid_ipi_t* pid, float target);
+
+/* 增量式PI设置KP */
+void cm_pid_ipi_set_kp(cm_pid_ipi_t* pid, float kp);
+
+/* 增量式PI设置KI */
+void cm_pid_ipi_set_ki(cm_pid_ipi_t* pid, float ki);
+
+/* 增量式PI设置KD */
+void cm_pid_ipi_set_kd(cm_pid_ipi_t* pid, float kd);
+
+/* 增量式PI设置上次输出 */
+void cm_pid_ipi_set_output(cm_pid_ipi_t* pid, float output);
+
+/* 设置输出限幅 */
+void cm_pid_ipi_set_limit(cm_pid_ipi_t* pid, float min, float max);
+
+/* 增量式PI重置 */
+void cm_pid_ipi_reset(cm_pid_ipi_t* pid);
+
+/* 增量式PI反初始化 */
+void cm_pid_ipi_deinit(cm_pid_ipi_t** pid);
+
+/* 增量式PI计算 */
+float cm_pid_ipi_comput(cm_pid_ipi_t* pid, float input, float time);
