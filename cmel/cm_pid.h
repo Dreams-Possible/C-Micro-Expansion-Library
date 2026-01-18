@@ -80,8 +80,8 @@ void cm_pid_ipid_set_ki(cm_pid_ipid_t* pid, float ki);
 /* 增量式PID设置KD */
 void cm_pid_ipid_set_kd(cm_pid_ipid_t* pid, float kd);
 
-/* 增量式PID设置上次输出 */
-void cm_pid_ipid_set_output(cm_pid_ipid_t* pid, float output);
+// /* 增量式PID设置上次输出 */
+// void cm_pid_ipid_set_output(cm_pid_ipid_t* pid, float output);
 
 /* 设置输出限幅 */
 void cm_pid_ipid_set_limit(cm_pid_ipid_t* pid, float min, float max);
@@ -112,8 +112,8 @@ void cm_pid_ipi_set_ki(cm_pid_ipi_t* pid, float ki);
 /* 增量式PI设置KD */
 void cm_pid_ipi_set_kd(cm_pid_ipi_t* pid, float kd);
 
-/* 增量式PI设置上次输出 */
-void cm_pid_ipi_set_output(cm_pid_ipi_t* pid, float output);
+// /* 增量式PI设置上次输出 */
+// void cm_pid_ipi_set_output(cm_pid_ipi_t* pid, float output);
 
 /* 设置输出限幅 */
 void cm_pid_ipi_set_limit(cm_pid_ipi_t* pid, float min, float max);

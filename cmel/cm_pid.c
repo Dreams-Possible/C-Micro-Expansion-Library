@@ -323,7 +323,7 @@ typedef struct cm_pid_ipid_t
     float output_max;      // 输出最大值
     float last_error;      // 上一次误差
     float llast_error;      // 上上一次误差
-    float last_output;     // 上一次输出
+    // float last_output;     // 上一次输出
     float last_time;       // 上一次时间
 } cm_pid_ipid_t;
 
@@ -337,8 +337,8 @@ void cm_pid_ipid_set_kp(cm_pid_ipid_t* pid, float kp);
 void cm_pid_ipid_set_ki(cm_pid_ipid_t* pid, float ki);
 //增量式PID设置KD
 void cm_pid_ipid_set_kd(cm_pid_ipid_t* pid, float kd);
-//增量式PID设置上次输出
-void cm_pid_ipid_set_output(cm_pid_ipid_t* pid, float output);
+// //增量式PID设置上次输出
+// void cm_pid_ipid_set_output(cm_pid_ipid_t* pid, float output);
 //设置输出限幅
 void cm_pid_ipid_set_limit(cm_pid_ipid_t* pid, float min, float max);
 //增量式PID反初始化
@@ -363,7 +363,7 @@ cm_pid_ipid_t* cm_pid_ipid_init()
     pid->output_max = FLT_MAX;
     pid->last_error = 0;
     pid->llast_error = 0;
-    pid->last_output = 0;
+    // pid->last_output = 0;
     pid->last_time = 0;
     return pid; 
 }
@@ -401,11 +401,11 @@ void cm_pid_ipid_set_kd(cm_pid_ipid_t* pid, float kd)
     }
 }
 
-//增量式PID设置上次输出
-void cm_pid_ipid_set_output(cm_pid_ipid_t* pid, float output)
-{
-    pid->last_output = output;
-}
+// //增量式PID设置上次输出
+// void cm_pid_ipid_set_output(cm_pid_ipid_t* pid, float output)
+// {
+//     pid->last_output = output;
+// }
 
 //增量式PID设置输出限幅
 void cm_pid_ipid_set_limit(cm_pid_ipid_t* pid, float min, float max)
@@ -462,9 +462,7 @@ float cm_pid_ipid_comput(cm_pid_ipid_t* pid, float input, float time)
         derivative = pid->kd * (error - 2*pid->last_error + pid->llast_error) / dt;
     }
     // 计算增量输出
-    float delta_output = proportional + integral + derivative;
-    // 计算当前输出：上一时刻输出加上增量
-    float output = pid->last_output + delta_output;
+    float output = proportional + integral + derivative;
     // 输出限幅
     if (output > pid->output_max)
     {
@@ -478,7 +476,7 @@ float cm_pid_ipid_comput(cm_pid_ipid_t* pid, float input, float time)
     pid->llast_error = pid->last_error;
     pid->last_error = error;
     pid->last_time = time;
-    pid->last_output = output;
+    // pid->last_output = output;
     return output;
 }
 
@@ -492,7 +490,7 @@ typedef struct cm_pid_ipi_t
     float output_min;      // 输出最小值
     float output_max;      // 输出最大值
     float last_error;      // 上一次误差
-    float last_output;     // 上一次输出
+    // float last_output;     // 上一次输出
     float last_time;       // 上一次时间
 } cm_pid_ipi_t;
 
@@ -506,8 +504,8 @@ void cm_pid_ipi_set_kp(cm_pid_ipi_t* pid, float kp);
 void cm_pid_ipi_set_ki(cm_pid_ipi_t* pid, float ki);
 //增量式PI设置KD
 void cm_pid_ipi_set_kd(cm_pid_ipi_t* pid, float kd);
-//增量式PI设置上次输出
-void cm_pid_ipi_set_output(cm_pid_ipi_t* pid, float output);
+// //增量式PI设置上次输出
+// void cm_pid_ipi_set_output(cm_pid_ipi_t* pid, float output);
 //设置输出限幅
 void cm_pid_ipi_set_limit(cm_pid_ipi_t* pid, float min, float max);
 //增量式PI反初始化
@@ -531,7 +529,7 @@ cm_pid_ipi_t* cm_pid_ipi_init()
     pid->output_min = -FLT_MAX;
     pid->output_max = FLT_MAX;
     pid->last_error = 0;
-    pid->last_output = 0;
+    // pid->last_output = 0;
     pid->last_time = 0;
     return pid; 
 }
@@ -569,11 +567,11 @@ void cm_pid_ipi_set_kd(cm_pid_ipi_t* pid, float kd)
     }
 }
 
-//增量式PI设置上次输出
-void cm_pid_ipi_set_output(cm_pid_ipi_t* pid, float output)
-{
-    pid->last_output = output;
-}
+// //增量式PI设置上次输出
+// void cm_pid_ipi_set_output(cm_pid_ipi_t* pid, float output)
+// {
+//     pid->last_output = output;
+// }
 
 //增量式PI设置输出限幅
 void cm_pid_ipi_set_limit(cm_pid_ipi_t* pid, float min, float max)
@@ -623,9 +621,7 @@ float cm_pid_ipi_comput(cm_pid_ipi_t* pid, float input, float time)
         integral = pid->ki * (error * dt);
     }
     // 计算增量输出
-    float delta_output = proportional + integral;
-    // 计算当前输出：上一时刻输出加上增量
-    float output = pid->last_output + delta_output;
+    float output = proportional + integral;
     // 输出限幅
     if (output > pid->output_max)
     {
@@ -639,6 +635,6 @@ float cm_pid_ipi_comput(cm_pid_ipi_t* pid, float input, float time)
     // pid->llast_error = pid->last_error;
     pid->last_error = error;
     pid->last_time = time;
-    pid->last_output = output;
+    // pid->last_output = output;
     return output;
 }
