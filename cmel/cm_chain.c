@@ -10,414 +10,272 @@
 #include<stdio.h>
 #define ch_log(args,...) printf("[CM_LOG][%s:%d:%s]: " args "\n",__FILE__,__LINE__,__func__,##__VA_ARGS__)
 
-//单链表初始化
-cm_chain_sll_t* cm_chain_sll_init(void* data);
-//单链表插入
-cm_chain_sll_t* cm_chain_sll_insert(cm_chain_sll_t* sll, void* data);
-//单链表添加
-cm_chain_sll_t* cm_chain_sll_add(cm_chain_sll_t* sll, void* data);
-//单链表删除
-uint8_t cm_chain_sll_del(cm_chain_sll_t* sll);
-//单链表反初始化
-uint8_t cm_chain_sll_deinit(cm_chain_sll_t* sll);
-//单链表成环
-uint8_t cm_chain_sll_tocyc(cm_chain_sll_t* head, cm_chain_sll_t* tail);
-//单链表去环
-uint8_t cm_chain_sll_decyc(cm_chain_sll_t* sll);
-//单链表计数
-uint32_t cm_chain_sll_count(cm_chain_sll_t* sll);
+//链表初始化
+cm_chain_t* cm_chain_init(void* data);
+//链表获取头节点
+cm_chain_t* cm_chain_get_head(cm_chain_t* node);
+//链表获取尾节点
+cm_chain_t* cm_chain_get_tail(cm_chain_t* node);
+//链表计数
+uint32_t cm_chain_count(cm_chain_t* node);
+//链表向头部添加数据
+cm_chain_t* cm_chain_add_head(cm_chain_t* node, void* data);
+//链表向尾部添加数据
+cm_chain_t* cm_chain_add_tail(cm_chain_t* node, void* data);
+//链表插入节点
+cm_chain_t* cm_chain_insert(cm_chain_t* node, void* data);
+//链表插入节点（索引）
+cm_chain_t* cm_chain_insert_index(cm_chain_t* node, uint32_t index, void* data);
+//链表删除节点
+uint8_t cm_chain_delete(cm_chain_t* node);
+//链表反初始化
+uint8_t cm_chain_deinit(cm_chain_t* node);
+//链表结构显示
+void cm_chain_show(cm_chain_t* node);
 
-//单链表初始化
-cm_chain_sll_t* cm_chain_sll_init(void* data)
+//链表初始化
+cm_chain_t* cm_chain_init(void* data)
 {
-    //分配内存
-    cm_chain_sll_t* node=(cm_chain_sll_t*)ch_malloc(sizeof(cm_chain_sll_t));
+    //申请内存
+    cm_chain_t* node=(cm_chain_t*)ch_malloc(sizeof(cm_chain_t));
     if(!node)
     {
         ch_log("mem err");
         return NULL;
     }
-    //链表连接
-    node->data = data;
-    node->next = NULL;
-    return node;
-}
-
-//单链表插入
-cm_chain_sll_t* cm_chain_sll_insert(cm_chain_sll_t* sll, void* data)
-{
-    //有效性检查
-    if(!sll)
-    {
-        ch_log("node inval");
-        return NULL;
-    }
-    //分配内存
-    cm_chain_sll_t* node = (cm_chain_sll_t*)ch_malloc(sizeof(cm_chain_sll_t));
-    if(!node)
-    {
-        ch_log("mem err");
-        return NULL;
-    }
-    //链表连接
-    if(sll->next)
-    {
-        node->next = sll->next;
-    }else
-    {
-        node->next = NULL;
-    }
-    sll->next = node;
-    node->data = data;
-    return node;
-}
-
-//单链表添加
-cm_chain_sll_t*cm_chain_sll_add(cm_chain_sll_t* sll, void* data)
-{
-    //如果节点不存在则自动创建
-    if(!sll)
-    {
-        ch_log("creat node");
-        sll=cm_chain_sll_init(data);
-        return sll;
-    }
-    //转跳至链表末端
-    cm_chain_sll_t* temp = sll;
-    while(temp->next)
-    {
-        //成环检测
-        if(temp->next == sll)
-        {
-            break;
-        }
-        temp = temp->next;
-    }
-    //单链表插入
-    cm_chain_sll_t* node = cm_chain_sll_insert(temp, data);
-    return node;
-}
-
-//单链表删除
-uint8_t cm_chain_sll_del(cm_chain_sll_t* sll)
-{
-    //有效性检查
-    if(!sll)
-    {
-        ch_log("node inval");
-        return 1;
-    }
-    //链表删除
-    cm_chain_sll_t* temp = sll;
-    sll = sll->next;
-    ch_free(temp);
-    return 0;
-}
-
-//单链表反初始化
-uint8_t cm_chain_sll_deinit(cm_chain_sll_t* sll)
-{
-    //有效性检查
-    if(!sll)
-    {
-        ch_log("node inval");
-        return 1;
-    }
-    //链表删除
-    cm_chain_sll_t* temp = sll;
-    while(temp)
-    {
-        cm_chain_sll_t* next = temp->next;
-        ch_free(temp);
-        temp = next;
-    }
-    return 0;
-}
-
-//单链表成环
-uint8_t cm_chain_sll_tocyc(cm_chain_sll_t* head, cm_chain_sll_t* tail)
-{
-    //有效性检查
-    if(!head)
-    {
-        ch_log("node inval");
-        return 1;
-    }
-    //如果未指定尾节点
-    if(!tail)
-    {
-        //转跳至链表末端
-        cm_chain_sll_t* temp = head;
-        while(temp->next)
-        {
-            temp = temp->next;
-        }
-        //连接成环
-        temp->next = head;
-    }else
-    {
-        //连接成环
-        tail->next = head;
-    }
-    return 0;
-}
-
-//单链表去环
-uint8_t cm_chain_sll_decyc(cm_chain_sll_t* sll)
-{
-    //有效性检查
-    if(!sll)
-    {
-        ch_log("node inval");
-        return 1;
-    }
-    //转跳至链表末端
-    cm_chain_sll_t* temp = sll;
-    while(temp->next != sll)
-    {
-        temp = temp->next;
-        //成环检测
-        if(!temp)
-        {
-            ch_log("not a cycle");
-            return 1;
-        }
-    }
-    //断开环
-    temp->next = NULL;
-    return 0;
-}
-
-//单链表计数
-uint32_t cm_chain_sll_count(cm_chain_sll_t* sll)
-{
-    uint32_t count = 0;
-    //有效性检查
-    if(!sll)
-    {
-        return count;
-    }
-    ++count;
-    //转跳至链表末端
-    cm_chain_sll_t* temp = sll;
-    while(temp->next)
-    {
-        ++count;
-        //成环检测
-        if(temp->next == sll)
-        {
-            break;
-        }
-        temp = temp->next;
-    }
-    return count;
-}
-
-//双链表初始化
-cm_chain_dll_t* cm_chain_dll_init(void* data);
-//双链表插入
-cm_chain_dll_t* cm_chain_dll_insert(cm_chain_dll_t* sll, void* data);
-//双链表添加
-cm_chain_dll_t* cm_chain_dll_add(cm_chain_dll_t* sll, void* data);
-//双链表删除
-uint8_t cm_chain_dll_del(cm_chain_dll_t* sll);
-//双链表反初始化
-uint8_t cm_chain_dll_deinit(cm_chain_dll_t* sll);
-//双链表成环
-uint8_t cm_chain_dll_tocyc(cm_chain_dll_t* head, cm_chain_dll_t* tail);
-//双链表去环
-uint8_t cm_chain_dll_decyc(cm_chain_dll_t* sll);
-//双链表计数
-uint32_t cm_chain_dll_count(cm_chain_dll_t* dll);
-
-//双链表初始化
-cm_chain_dll_t* cm_chain_dll_init(void* data)
-{
-    //分配内存
-    cm_chain_dll_t* node=(cm_chain_dll_t*)ch_malloc(sizeof(cm_chain_dll_t));
-    if(!node)
-    {
-        ch_log("mem err");
-        return NULL;
-    }
-    //初始化数据
     node->data = data;
     node->last = NULL;
     node->next = NULL;
     return node;
 }
 
-//双链表插入
-cm_chain_dll_t* cm_chain_dll_insert(cm_chain_dll_t* dll, void* data)
+//链表获取头节点
+cm_chain_t* cm_chain_get_head(cm_chain_t* node)
+{
+    cm_chain_t*temp=node;
+    cm_chain_t*ret=temp;
+    while(temp)
+    {
+        if(!temp->last)
+        {
+            ret=temp;
+        }
+        temp = temp->last;
+    }
+    return ret;
+}
+
+//链表获取尾节点
+cm_chain_t* cm_chain_get_tail(cm_chain_t* node)
+{
+    cm_chain_t*temp=node;
+    cm_chain_t*ret=temp;
+    while(temp)
+    {
+        if(!temp->next)
+        {
+            ret=temp;
+        }
+        temp = temp->next;
+    }
+    return ret;
+}
+
+//链表计数
+uint32_t cm_chain_count(cm_chain_t* node)
+{
+    //获取头节点
+    cm_chain_t* head = cm_chain_get_head(node);
+    uint32_t count = 0;
+    cm_chain_t* temp = head;
+    while(temp)
+    {
+        ++count;
+        temp = temp->next;
+    }
+    return count;
+}
+
+//链表向头部添加数据
+cm_chain_t* cm_chain_add_head(cm_chain_t* node, void* data)
 {
     //有效性检查
-    if(!dll)
+    if(!node)
     {
         ch_log("node inval");
         return NULL;
     }
-    //分配内存
-    cm_chain_dll_t* node = (cm_chain_dll_t*)ch_malloc(sizeof(cm_chain_dll_t));
-    if(!node)
+    //申请内存
+    cm_chain_t* new_node = (cm_chain_t*)ch_malloc(sizeof(cm_chain_t));
+    if(!new_node)
     {
         ch_log("mem err");
         return NULL;
     }
-    //链表连接
-    node->last = dll;
-    if(dll->next)
-    {
-        node->next = dll->next;
-    }else
-    {
-        node->next = NULL;
-    }
-    dll->next = node;
-    node->data = data;
-    return node;
+    //初始化数据
+    new_node->data = data;
+    new_node->last = NULL;
+    new_node->next = NULL;
+    //获取头节点
+    cm_chain_t* head = cm_chain_get_head(node);
+    //添加到头节点前
+    new_node->next = head;
+    head->last = new_node;
+    return new_node;
 }
 
-//双链表添加
-cm_chain_dll_t* cm_chain_dll_add(cm_chain_dll_t* dll, void* data)
-{
-    //如果节点不存在则自动创建
-    if(!dll)
-    {
-        ch_log("creat node");
-        dll=cm_chain_dll_init(data);
-        return dll;
-    }
-    //转跳至链表末端
-    cm_chain_dll_t* temp = dll;
-    while(temp->next)
-    {
-        temp = temp->next;
-    }
-    //双链表插入
-    cm_chain_dll_t* node = cm_chain_dll_insert(temp, data);
-    return node;
-}
-
-//双链表删除
-uint8_t cm_chain_dll_del(cm_chain_dll_t* dll)
+//链表向尾部添加数据
+cm_chain_t* cm_chain_add_tail(cm_chain_t* node, void* data)
 {
     //有效性检查
-    if(!dll)
+    if(!node)
+    {
+        ch_log("node inval");
+        return NULL;
+    }
+    //申请内存
+    cm_chain_t* new_node = (cm_chain_t*)ch_malloc(sizeof(cm_chain_t));
+    if(!new_node)
+    {
+        ch_log("mem err");
+        return NULL;
+    }
+    //初始化数据
+    new_node->data = data;
+    new_node->last = NULL;
+    new_node->next = NULL;
+    //获取尾节点
+    cm_chain_t* tail = cm_chain_get_tail(node);
+    //添加到尾节点后
+    tail->next = new_node;
+    new_node->last = tail;
+    return new_node;
+}
+
+//链表插入节点
+cm_chain_t* cm_chain_insert(cm_chain_t* node, void* data)
+{
+    //有效性检查
+    if(!node)
+    {    
+        ch_log("node inval");
+        return NULL;
+    }
+    //申请内存
+    cm_chain_t* new_node = (cm_chain_t*)ch_malloc(sizeof(cm_chain_t));
+    if(!new_node)
+    {
+        ch_log("mem err");
+        return NULL;
+    }
+    //初始化数据
+    new_node->data = data;
+    new_node->last = NULL;
+    new_node->next = NULL;
+    //插入节点
+    node->next=new_node;
+    new_node->last = node;
+    return new_node;
+}
+
+//链表插入节点（索引）
+cm_chain_t* cm_chain_insert_index(cm_chain_t* node, uint32_t index, void* data)
+{
+    //有效性检查
+    if(!node)
+    {    
+        ch_log("node inval");
+        return NULL;
+    }
+    //插入到头节点之前
+    if(!index)
+    {
+        return cm_chain_add_head(node, data);
+    }
+    //获取头节点
+    cm_chain_t* head = cm_chain_get_head(node);
+    //获取前级节点
+    uint32_t count = 0;
+    cm_chain_t* temp = head;
+    while(temp)
+    {
+        ++count;
+        if(count == index)
+        {
+            break;
+        }
+        temp = temp->next;
+    }
+    //插入节点
+    cm_chain_t* new_node = cm_chain_insert(temp, data);    
+    return new_node;
+}
+
+//链表删除节点
+uint8_t cm_chain_delete(cm_chain_t* node)
+{
+    //有效性检查
+    if(!node)
     {
         ch_log("node inval");
         return 1;
     }
-    //链表删除
-    if(dll->last)
+    //调整结构
+    if(node->last)
     {
-        dll->last->next = dll->next;
+        node->last->next = node->next;
     }
-    if(dll->next)
-    {
-        dll->next->last = dll->last;
+    if(node->next)
+    {    
+        node->next->last = node->last;
     }
-    ch_free(dll);
+    //释放内存
+    ch_free(node);
     return 0;
 }
 
-//双链表反初始化
-uint8_t cm_chain_dll_deinit(cm_chain_dll_t* dll)
+//链表反初始化
+uint8_t cm_chain_deinit(cm_chain_t* node)
 {
     //有效性检查
-    if(!dll)
+    if(!node)
     {
         ch_log("node inval");
         return 1;
     }
-    //链表删除
-    cm_chain_dll_t* temp = dll;
+    //获取头节点
+    cm_chain_t* head = cm_chain_get_head(node);
+    //释放内存
+    cm_chain_t* temp = head;
     while(temp)
     {
-        cm_chain_dll_t* next = temp->next;
+        cm_chain_t* next = temp->next;
         ch_free(temp);
         temp = next;
     }
     return 0;
 }
 
-//双链表成环
-uint8_t cm_chain_dll_tocyc(cm_chain_dll_t* head, cm_chain_dll_t* tail)
+//链表结构显示
+void cm_chain_show(cm_chain_t* node)
 {
     //有效性检查
-    if(!head)
+    if(!node)
     {
         ch_log("node inval");
-        return 1;
+        return;
     }
-    //如果未指定尾节点
-    if(!tail)
-    {
-        //转跳至链表末端
-        cm_chain_dll_t* temp = head;
-        while(temp->next)
-        {
-            temp = temp->next;
-        }
-        //连接成环
-        temp->next = head;
-        head->last = temp;
-    }else
-    {
-        //连接成环
-        tail->next = head;
-        head->last = tail;
-    }
-    return 0;
-}
-
-//双链表去环
-uint8_t cm_chain_dll_decyc(cm_chain_dll_t* dll)
-{
-    //有效性检查
-    if(!dll)
-    {
-        ch_log("node inval");
-        return 1;
-    }
-    //转跳至链表末端
-    cm_chain_dll_t* temp = dll;
-    while(temp->next != dll)
-    {
-        temp = temp->next;
-        //成环检测
-        if(!temp)
-        {
-            ch_log("not a cycle");
-            return 1;
-        }
-    }
-    //断开环
-    temp->next = NULL;
-    dll->last = NULL;
-    return 0;
-}
-
-//双链表计数
-uint32_t cm_chain_dll_count(cm_chain_dll_t* dll)
-{
+    //获取头节点
+    cm_chain_t* head = cm_chain_get_head(node);
+    cm_chain_t* temp = head;
     uint32_t count = 0;
-    //有效性检查
-    if(!dll)
+    //显示结构
+    ch_log("chain:\n");
+    while(temp)
     {
-        return count;
-    }
-    ++count;
-    //转跳至链表末端
-    cm_chain_dll_t* temp = dll;
-    while(temp->next)
-    {
-        ++count;
-        //成环检测
-        if(temp->next == dll)
-        {
-            break;
-        }
+        ch_log("count: %d, node: %p, data: %p, last: %p, next: %p\n", count, temp, temp->data, temp->last, temp->next);
         temp = temp->next;
+        ++count;
     }
-    return count;
+    return;
 }

@@ -61,13 +61,34 @@ cm_cli_t*cm_cli_init()
         cli_log("mem err");
         return NULL;
     }
-    cmd->root = NULL;
+    cmd->root = cm_chain_init(NULL);
+    if(!cmd->root)
+    {
+        cli_log("mem err");
+        return NULL;
+    }
     return cmd;
 }
 
 //命令注册
 uint8_t cm_cli_regist(cm_cli_t*cli, const char *name, void (*func)(uint32_t args_num, char *args_ptr[]))
 {
+    //检查有效性
+    if(!cli)
+    {
+        cli_log("cli inval");
+        return 1;
+    }
+    if(!name)
+    {
+        cli_log("name inval");
+        return 1;
+    }
+    if(!func)
+    {    
+        cli_log("func inval");
+        return 1;
+    }
     //创建命令结构体
     cmd_t* cmd = (cmd_t*)cli_malloc(sizeof(cmd_t));
     if(!cmd)
@@ -86,34 +107,42 @@ uint8_t cm_cli_regist(cm_cli_t*cli, const char *name, void (*func)(uint32_t args
     strcpy(cmd->name, name);
     cmd->func=func;
     //添加命令
-    if(!cli->root)
-    {
-        cli->root = cm_chain_sll_add(NULL, cmd);
-    }else
-    {
-        cm_chain_sll_add(cli->root, cmd);
-    }
+    cm_chain_add_tail(cli->root, cmd);
     return 0;
 }
 
 //命令注销
 void cm_cli_dereg(cm_cli_t*cli, const char *name)
 {
-    cm_chain_sll_t* node = cli->root;
-    for(uint32_t f = 0; f < cm_chain_sll_count(cli->root); ++f)
+    //检查有效性
+    if(!cli)
+    {
+        cli_log("cli inval");
+        return;
+    }
+    if(!name)
+    {
+        cli_log("name inval");
+        return;
+    }
+    cm_chain_t* node = cli->root;
+    uint32_t count = cm_chain_count(cli->root);
+    for(uint32_t f = 0; f < count; ++f)
     {
         cmd_t* cmd = (cmd_t*)node->data;
+        //跳过根节点
+        if(!cmd)
+        {
+            node = node->next;
+            continue;
+        }
         //匹配命令名称
         if(strcmp(cmd->name, name)==0)
         {
             //释放命令资源
             cli_free(cmd->name);
             cli_free(cmd);
-            if(cli->root == node)
-            {
-                cli->root = node->next;
-            }
-            cm_chain_sll_del(node);
+            cm_chain_delete(node);
             return;
         }
         node = node->next;
@@ -123,16 +152,24 @@ void cm_cli_dereg(cm_cli_t*cli, const char *name)
 //命令反初始化
 void cm_cli_deinit(cm_cli_t**cli)
 {
-    cm_chain_sll_t* node = (*cli)->root;
-    for(uint32_t f = 0; f < cm_chain_sll_count((*cli)->root); ++f)
+    cm_chain_t* node = (*cli)->root;
+    uint32_t count = cm_chain_count((*cli)->root);
+    cli_log("cmd count: %d", count);
+    for(uint32_t f = 0; f < count; ++f)
     {
         cmd_t* cmd = (cmd_t*)node->data;
+        //跳过根节点
+        if(!cmd)
+        {
+            node = node->next;
+            continue;
+        }
         //释放命令资源
         cli_free(cmd->name);
         cli_free(cmd);
         node = node->next;
     }
-    cm_chain_sll_deinit((*cli)->root);
+    cm_chain_deinit((*cli)->root);
     free(*cli);
     *cli = NULL;
 }
@@ -140,10 +177,18 @@ void cm_cli_deinit(cm_cli_t**cli)
 //命令执行
 void cm_cli_exec(cm_cli_t*cli, uint32_t args_num, char *args_ptr[])
 {
-    cm_chain_sll_t* node = cli->root;
-    for(uint32_t f = 0; f < cm_chain_sll_count(cli->root); ++f)
+    cm_chain_t* node = cli->root;
+    uint32_t count = cm_chain_count(cli->root);
+    for(uint32_t f = 0; f < count; ++f)
     {
         cmd_t* cmd = (cmd_t*)node->data;
+        //跳过根节点
+        if(!cmd)
+        {
+            // cli_log("skip cmd %f",f);
+            node = node->next;
+            continue;
+        }
         //匹配命令名称
         if(strcmp(cmd->name, args_ptr[0])==0)
         {

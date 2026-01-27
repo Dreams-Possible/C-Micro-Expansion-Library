@@ -9,7 +9,7 @@
  */
 typedef struct cm_cli_t
 {
-    cm_chain_sll_t* root;
+    cm_chain_t* root;
 } cm_cli_t;
 
 /**
