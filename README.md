@@ -18,20 +18,33 @@ C-Micro-Expansion-Library (CMEL) 是一个专为嵌入式系统和资源受限�
 
 ### 1. 链式数据结构 (cm_chain)
 
-提供单链表和双链表的完整实现，支持循环链表转换。
+提供统一的双向链表实现，支持灵活的节点操作和遍历。
 
 **主要功能：**
-- 单链表 (Singly Linked List)
+- 统一双向链表结构
   - 初始化、插入、添加、删除节点
-  - 链表计数、循环链表转换
+  - 链表计数和遍历
   - 内存安全释放
+  - 头尾节点获取
+  - 索引插入支持
+  - 链表结构显示
 
-- 双链表 (Doubly Linked List) 
-  - 双向遍历支持
-  - 前后节点操作
-  - 循环双链表支持
+### 2. 几何计算模块 (cm_geo)
 
-### 2. 命令行接口 (cm_cli)
+提供2D几何计算功能，适用于路径规划、图形处理等场景。
+
+**主要功能：**
+- 2D点距离计算
+  - 计算两点之间的欧几里得距离
+- 斜率计算
+  - 计算两点连线的斜率
+  - 垂直线斜率处理
+- 曲率计算
+  - 计算三点构成的曲线曲率
+  - 判断左转/右转方向
+  - 共线检测
+
+### 3. 命令行接口 (cm_cli)
 
 轻量级命令行解析器，支持命令注册和执行。
 
@@ -41,18 +54,32 @@ C-Micro-Expansion-Library (CMEL) 是一个专为嵌入式系统和资源受限�
 - 命令执行调度
 - 交互式命令行界面
 
-### 3. PID控制器 (cm_pid)
+### 4. PID控制器 (cm_pid)
 
-经典的PID和PD控制器实现，适用于控制系统。
+提供位置式和增量式PID控制器实现，适用于不同的控制系统需求。
 
 **主要功能：**
-- PID控制器 (比例-积分-微分)
-  - 参数可配置 (Kp, Ki, Kd)
+- 位置式PID控制器
+  - 完整的PID控制算法
+  - 参数独立配置 (Kp, Ki, Kd)
   - 输出限幅保护
   - 积分抗饱和处理
+  - 目标值设置和重置功能
 
-- PD控制器 (比例-微分)
+- 位置式PD控制器
   - 简化版本，适用于不需要积分项的场景
+  - 参数配置 (Kp, Kd)
+  - 输出限幅支持
+
+- 增量式PID控制器
+  - 增量式控制算法，适用于执行器控制
+  - 参数独立配置 (Kp, Ki, Kd)
+  - 输出限幅保护
+  - 避免积分饱和问题
+
+- 增量式PI控制器
+  - 简化版本，适用于不需要微分项的场景
+  - 参数配置 (Kp, Ki)
   - 输出限幅支持
 
 ## 快速开始
@@ -61,20 +88,45 @@ C-Micro-Expansion-Library (CMEL) 是一个专为嵌入式系统和资源受限�
 
 ```c
 #include "cmel/cm_chain.h"
+#include "cmel/cm_geo.h"
 #include "cmel/cm_cli.h"
 #include "cmel/cm_pid.h"
 
-// 使用链表示例
-cm_chain_sll_t* list = cm_chain_sll_init(data);
-cm_chain_sll_add(list, new_data);
+// 使用统一链表示例
+cm_chain_t* list = cm_chain_init(data);
+cm_chain_add_tail(list, new_data);
+uint32_t count = cm_chain_count(list);
+
+// 使用几何计算示例
+cm_geo_2dp_t p1 = {0.0, 0.0};
+cm_geo_2dp_t p2 = {3.0, 4.0};
+cm_geo_2dp_t p3 = {6.0, 0.0};
+float distance = cm_geo_2dp_dist(p1, p2);
+float slope = cm_geo_calcu_slope(p1, p2);
+uint8_t direction;
+float curvature = cm_geo_calcu_curva(p1, p2, p3, &direction);
 
 // 使用CLI示例
 cm_cli_t* cli = cm_cli_init();
 cm_cli_regist(cli, "test", test_command);
 
-// 使用PID控制器示例
-cm_pid_pid_t* pid = cm_pid_pid_init(1.0, 0.1, 0.05);
-float output = cm_pid_pid_comput(pid, current_value, current_time);
+// 使用位置式PID控制器示例
+cm_pid_ppid_t* ppid = cm_pid_ppid_init();
+cm_pid_ppid_set_target(ppid, 100.0);
+cm_pid_ppid_set_kp(ppid, 1.0);
+cm_pid_ppid_set_ki(ppid, 0.1);
+cm_pid_ppid_set_kd(ppid, 0.05);
+cm_pid_ppid_set_limit(ppid, -50.0, 50.0);
+float output = cm_pid_ppid_comput(ppid, current_value, current_time);
+
+// 使用增量式PID控制器示例
+cm_pid_ipid_t* ipid = cm_pid_ipid_init();
+cm_pid_ipid_set_target(ipid, 100.0);
+cm_pid_ipid_set_kp(ipid, 0.8);
+cm_pid_ipid_set_ki(ipid, 0.05);
+cm_pid_ipid_set_kd(ipid, 0.02);
+cm_pid_ipid_set_limit(ipid, -10.0, 10.0);
+float increment = cm_pid_ipid_comput(ipid, current_value, current_time);
 ```
 
 ### 构建说明
@@ -82,25 +134,32 @@ float output = cm_pid_pid_comput(pid, current_value, current_time);
 将 `cmel/` 目录添加到您的编译路径中，并链接相应的源文件：
 
 ```bash
-gcc -I./cmel your_program.c cmel/cm_chain.c cmel/cm_cli.c cmel/cm_pid.c -o your_program
+gcc -I./cmel your_program.c cmel/cm_chain.c cmel/cm_geo.c cmel/cm_cli.c cmel/cm_pid.c -o your_program
 ```
 
 ## API文档
 
 ### 链式数据结构
 
-#### 单链表操作
-- `cm_chain_sll_init()` - 初始化单链表
-- `cm_chain_sll_insert()` - 插入节点
-- `cm_chain_sll_add()` - 末尾添加节点
-- `cm_chain_sll_del()` - 删除节点
-- `cm_chain_sll_count()` - 节点计数
+#### 统一链表操作
+- `cm_chain_init()` - 初始化链表节点
+- `cm_chain_get_head()` - 获取链表头节点
+- `cm_chain_get_tail()` - 获取链表尾节点
+- `cm_chain_count()` - 计算链表节点数量
+- `cm_chain_add_head()` - 向链表头部添加节点
+- `cm_chain_add_tail()` - 向链表尾部添加节点
+- `cm_chain_insert()` - 在指定节点后插入新节点
+- `cm_chain_insert_index()` - 按索引插入新节点
+- `cm_chain_delete()` - 删除指定节点
+- `cm_chain_deinit()` - 释放整个链表
+- `cm_chain_show()` - 显示链表结构信息
 
-#### 双链表操作
-- `cm_chain_dll_init()` - 初始化双链表
-- `cm_chain_dll_insert()` - 插入节点
-- `cm_chain_dll_add()` - 末尾添加节点
-- `cm_chain_dll_del()` - 删除节点
+### 几何计算模块
+
+#### 2D几何计算
+- `cm_geo_2dp_dist()` - 计算两点之间的欧几里得距离
+- `cm_geo_calcu_slope()` - 计算两点连线的斜率
+- `cm_geo_calcu_curva()` - 计算三点构成的曲线曲率和转向方向
 
 ### 命令行接口
 
@@ -111,10 +170,45 @@ gcc -I./cmel your_program.c cmel/cm_chain.c cmel/cm_cli.c cmel/cm_pid.c -o your_
 
 ### PID控制器
 
-- `cm_pid_pid_init()` - 初始化PID控制器
-- `cm_pid_pid_comput()` - PID计算
-- `cm_pid_pd_init()` - 初始化PD控制器
-- `cm_pid_pd_comput()` - PD计算
+#### 位置式控制器
+- `cm_pid_ppid_init()` - 初始化位置式PID控制器
+- `cm_pid_ppid_set_target()` - 设置位置式PID目标值
+- `cm_pid_ppid_set_kp()` - 设置位置式PID比例系数
+- `cm_pid_ppid_set_ki()` - 设置位置式PID积分系数
+- `cm_pid_ppid_set_kd()` - 设置位置式PID微分系数
+- `cm_pid_ppid_set_limit()` - 设置位置式PID输出限幅
+- `cm_pid_ppid_reset()` - 重置位置式PID控制器
+- `cm_pid_ppid_deinit()` - 释放位置式PID控制器
+- `cm_pid_ppid_comput()` - 位置式PID计算
+
+- `cm_pid_ppd_init()` - 初始化位置式PD控制器
+- `cm_pid_ppd_set_target()` - 设置位置式PD目标值
+- `cm_pid_ppd_set_kp()` - 设置位置式PD比例系数
+- `cm_pid_ppd_set_kd()` - 设置位置式PD微分系数
+- `cm_pid_ppd_set_limit()` - 设置位置式PD输出限幅
+- `cm_pid_ppd_reset()` - 重置位置式PD控制器
+- `cm_pid_ppd_deinit()` - 释放位置式PD控制器
+- `cm_pid_ppd_comput()` - 位置式PD计算
+
+#### 增量式控制器
+- `cm_pid_ipid_init()` - 初始化增量式PID控制器
+- `cm_pid_ipid_set_target()` - 设置增量式PID目标值
+- `cm_pid_ipid_set_kp()` - 设置增量式PID比例系数
+- `cm_pid_ipid_set_ki()` - 设置增量式PID积分系数
+- `cm_pid_ipid_set_kd()` - 设置增量式PID微分系数
+- `cm_pid_ipid_set_limit()` - 设置增量式PID输出限幅
+- `cm_pid_ipid_reset()` - 重置增量式PID控制器
+- `cm_pid_ipid_deinit()` - 释放增量式PID控制器
+- `cm_pid_ipid_comput()` - 增量式PID计算
+
+- `cm_pid_ipi_init()` - 初始化增量式PI控制器
+- `cm_pid_ipi_set_target()` - 设置增量式PI目标值
+- `cm_pid_ipi_set_kp()` - 设置增量式PI比例系数
+- `cm_pid_ipi_set_ki()` - 设置增量式PI积分系数
+- `cm_pid_ipi_set_limit()` - 设置增量式PI输出限幅
+- `cm_pid_ipi_reset()` - 重置增量式PI控制器
+- `cm_pid_ipi_deinit()` - 释放增量式PI控制器
+- `cm_pid_ipi_comput()` - 增量式PI计算
 
 ## 许可证
 
@@ -130,6 +224,19 @@ gcc -I./cmel your_program.c cmel/cm_chain.c cmel/cm_cli.c cmel/cm_pid.c -o your_
 
 ## 版本历史
 
+- v1.1.0 - 重大重构和功能增强
+  - 链表模块完全重构为统一双向链表结构
+  - 新增几何计算模块 (cm_geo)
+    - 2D点距离计算
+    - 斜率计算
+    - 曲率计算和转向判断
+  - PID控制器重构为位置式和增量式
+    - 位置式PID控制器 (cm_pid_ppid)
+    - 位置式PD控制器 (cm_pid_ppd)
+    - 增量式PID控制器 (cm_pid_ipid)
+    - 增量式PI控制器 (cm_pid_ipi)
+
 - v1.0.0 - 初始版本发布
-  - 链式数据结构模块
-  - 命令行接口模块  
+  - 链式数据结构模块 (单链表和双链表)
+  - 命令行接口模块
+  - PID控制器模块 (经典PID和PD)
